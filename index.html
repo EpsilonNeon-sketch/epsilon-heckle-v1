@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epsilon Heckle | Play & Create</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" href="./epsilon-heckle-logo.png" size="any">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --roblox-red: #ff0000;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+        }
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #loading-logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        .heading-font { font-family: 'Orbitron', sans-serif; }
+        .red-glow:hover {
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+            border-color: var(--roblox-red);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #111; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--roblox-red); }
+        
+        #game-frame {
+            background: #fff;
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 8px;
+        }
+        .tab-active {
+            border-bottom: 3px solid var(--roblox-red);
+            color: var(--roblox-red);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(255, 0, 0, 0.6); }
+        }
+        .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+        .gradient-text {
+            background: linear-gradient(135deg, #ff0000, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <img id="loading-logo" src="./epsilon-heckle-logo.png" alt="Epsilon Heckle">
+    </div>
+
+    <!-- Top Nav -->
+    <nav class="bg-black/95 backdrop-blur-sm border-b border-zinc-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-lg shadow-red-900/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-red-600 to-red-800 rounded-lg rotate-45 flex items-center justify-center pulse-glow">
+                <span class="text-white font-bold -rotate-45 text-xl italic">E</span>
+            </div>
+            <h1 class="heading-font text-2xl font-black tracking-tighter">EPSILON <span class="gradient-text">HECKLE</span></h1>
+        </div>
+        <div class="hidden md:flex gap-8 text-sm font-semibold uppercase tracking-widest">
+            <button onclick="showPage('discover')" class="nav-btn hover:text-red-500 transition flex items-center gap-2">
+                <i data-lucide="compass" class="w-4 h-4"></i> Discover
+            </button>
+            <button onclick="showPage('engine')" class="nav-btn hover:text-red-500 transition flex items-center gap-2">
+                <i data-lucide="code-2" class="w-4 h-4"></i> Engine
+            </button>
+            <button onclick="showPage('library')" class="nav-btn hover:text-red-500 transition flex items-center gap-2">
+                <i data-lucide="library" class="w-4 h-4"></i> My Games
+            </button>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="bg-zinc-900 px-4 py-2 rounded-full border border-zinc-700 text-xs flex items-center gap-2 hover:border-green-500 transition">
+                <i data-lucide="activity" class="w-3 h-3 text-green-500"></i>
+                <span class="font-semibold">1,337 Online</span>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-zinc-700 hover:border-red-500 transition cursor-pointer flex items-center justify-center">
+                <i data-lucide="user" class="w-5 h-5 text-zinc-400"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-6 max-w-7xl mx-auto w-full">
+        
+        <!-- DISCOVER PAGE -->
+        <section id="page-discover" class="page-content">
+            <div class="mb-10">
+                <div class="flex items-center gap-3 mb-2">
+                    <i data-lucide="sparkles" class="w-8 h-8 text-red-500"></i>
+                    <h2 class="text-4xl font-black gradient-text">Featured Experiences</h2>
+                </div>
+                <p class="text-zinc-400 flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    Curated by the Epsilon Dev Team
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Game Card 1 -->
+                <div onclick="playInternal('snake')" class="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-xl overflow-hidden cursor-pointer red-glow transition duration-300 group hover:scale-105">
+                    <div class="h-40 bg-gradient-to-br from-red-900 to-black flex items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-red-500/10 group-hover:bg-red-500/20 transition"></div>
+                        <span class="text-5xl group-hover:scale-110 transition float-animation relative z-10">🐍</span>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-lg">Neon Serpent</h3>
+                            <i data-lucide="play-circle" class="w-5 h-5 text-red-500 opacity-0 group-hover:opacity-100 transition"></i>
+                        </div>
+                        <p class="text-xs text-zinc-500 mt-1 mb-4">Retro snake but with more red.</p>
+                        <div class="flex justify-between items-center text-[11px] text-zinc-400">
+                            <span class="flex items-center gap-1"><i data-lucide="thumbs-up" class="w-3 h-3"></i> 89%</span>
+                            <span class="flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> 2.4k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Card 2 -->
+                <div onclick="playInternal('clicker')" class="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-xl overflow-hidden cursor-pointer red-glow transition duration-300 group hover:scale-105">
+                    <div class="h-40 bg-gradient-to-br from-zinc-800 to-red-950 flex items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-red-500/10 group-hover:bg-red-500/20 transition"></div>
+                        <span class="text-5xl group-hover:scale-110 transition float-animation relative z-10">🖱️</span>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-lg">Epsilon Clicker</h3>
+                            <i data-lucide="play-circle" class="w-5 h-5 text-red-500 opacity-0 group-hover:opacity-100 transition"></i>
+                        </div>
+                        <p class="text-xs text-zinc-500 mt-1 mb-4">Destroy your mouse for points.</p>
+                        <div class="flex justify-between items-center text-[11px] text-zinc-400">
+                            <span class="flex items-center gap-1"><i data-lucide="thumbs-up" class="w-3 h-3"></i> 95%</span>
+                            <span class="flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> 5.1k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Card 3 (Placeholder for UGC) -->
+                <div onclick="showPage('engine')" class="bg-zinc-900/50 border-2 border-dashed border-zinc-700 rounded-xl overflow-hidden cursor-pointer hover:border-red-600 hover:bg-zinc-900 transition-all duration-300 flex flex-col items-center justify-center p-8 text-center group">
+                    <div class="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center mb-4 group-hover:bg-red-600 transition">
+                        <i data-lucide="plus" class="w-8 h-8 text-zinc-600 group-hover:text-white transition"></i>
+                    </div>
+                    <h3 class="font-bold text-zinc-400 group-hover:text-white transition">Create Something</h3>
+                    <p class="text-xs text-zinc-600 mt-2 group-hover:text-zinc-400 transition">Launch the Epsilon Engine to build your own HTML game.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ENGINE PAGE -->
+        <section id="page-engine" class="page-content hidden">
+            <div class="flex flex-col lg:flex-row gap-6 h-[700px]">
+                <!-- Editor Side -->
+                <div class="lg:w-1/2 flex flex-col gap-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="terminal" class="w-6 h-6 text-red-500"></i>
+                            <h2 class="text-2xl font-black italic">ENGINE<span class="gradient-text">.v1</span></h2>
+                        </div>
+                        <div class="flex gap-2">
+                            <input id="game-title" type="text" placeholder="Game Name..." class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2 text-sm outline-none focus:border-red-600 transition">
+                            <button onclick="saveProject()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
+                                <i data-lucide="save" class="w-4 h-4"></i> SAVE
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="code-editor" class="flex-grow bg-black border border-zinc-800 rounded p-4 font-mono text-sm text-green-400 outline-none focus:border-zinc-600 resize-none custom-scrollbar" placeholder="<!-- Write your HTML/CSS/JS here -->
+<style>
+  body { background: #000; color: #f00; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+</style>
+<h1>Hello Epsilon!</h1>
+<script>
+  console.log('Game Running...');
+</script>"></textarea>
+                    <button onclick="runCode()" class="w-full bg-gradient-to-r from-zinc-100 to-white text-black hover:from-white hover:to-zinc-100 font-black py-3 rounded-lg tracking-widest uppercase flex items-center justify-center gap-2 transition shadow-lg hover:shadow-xl">
+                        <i data-lucide="rocket" class="w-5 h-5"></i> Launch Preview
+                    </button>
+                </div>
+
+                <!-- Preview Side -->
+                <div class="lg:w-1/2 flex flex-col gap-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="monitor" class="w-4 h-4 text-zinc-500"></i>
+                            <h2 class="text-zinc-500 uppercase text-xs font-bold tracking-widest">Live Runtime</h2>
+                        </div>
+                        <button onclick="clearPreview()" class="text-zinc-600 hover:text-red-500 text-xs flex items-center gap-1 transition">
+                            <i data-lucide="refresh-ccw" class="w-3 h-3"></i> Reset Canvas
+                        </button>
+                    </div>
+                    <div id="preview-container" class="flex-grow bg-white rounded-lg overflow-hidden border-4 border-zinc-900 relative">
+                        <iframe id="engine-preview" class="w-full h-full"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIBRARY PAGE -->
+        <section id="page-library" class="page-content hidden">
+            <div class="flex items-center gap-3 mb-8">
+                <i data-lucide="folder-open" class="w-8 h-8 text-red-500"></i>
+                <h2 class="text-4xl font-black italic gradient-text">MY CREATIONS</h2>
+            </div>
+            <div id="library-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Projects will load here -->
+            </div>
+        </section>
+
+        <!-- FULLSCREEN GAME VIEW -->
+        <section id="page-player" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="showPage('discover')" class="text-zinc-500 hover:text-white flex items-center gap-2 transition group">
+                    <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition"></i> Back to Hub
+                </button>
+                <h2 id="current-playing-title" class="text-2xl font-bold flex items-center gap-2">
+                    <i data-lucide="gamepad-2" class="w-6 h-6 text-red-500"></i>
+                    <span>Playing Game</span>
+                </h2>
+                <button onclick="toggleFullscreen()" class="bg-zinc-800 p-3 rounded-lg hover:bg-zinc-700 transition flex items-center gap-2">
+                    <i data-lucide="maximize" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="bg-white rounded-xl overflow-hidden shadow-2xl shadow-red-900/20">
+                <iframe id="game-viewport" class="w-full h-[600px] border-none"></iframe>
+            </div>
+            <div class="mt-6 p-6 bg-gradient-to-r from-zinc-900 to-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center shadow-lg">
+                <div class="flex items-center gap-6">
+                    <button class="flex items-center gap-2 hover:text-green-500 transition group">
+                        <i data-lucide="thumbs-up" class="w-5 h-5 group-hover:scale-110 transition"></i>
+                        <span class="text-sm font-bold">12k</span>
+                    </button>
+                    <button class="flex items-center gap-2 hover:text-red-500 transition group">
+                        <i data-lucide="thumbs-down" class="w-5 h-5 group-hover:scale-110 transition"></i>
+                        <span class="text-sm font-bold">203</span>
+                    </button>
+                </div>
+                <button class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-3 rounded-full font-bold hover:scale-105 transition flex items-center gap-2 shadow-lg">
+                    <i data-lucide="star" class="w-5 h-5"></i> Favorite
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="p-8 border-t border-zinc-900 text-center text-zinc-600 text-xs">
+        <div class="flex items-center justify-center gap-2 mb-2">
+            <i data-lucide="zap" class="w-4 h-4 text-red-600"></i>
+            <p class="font-semibold">&copy; 2026 Epsilon Heckle Labs. Stay edgy.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-10 right-10 bg-gradient-to-r from-zinc-100 to-white text-black px-6 py-4 rounded-xl font-bold translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-[100] shadow-2xl border-2 border-zinc-300 flex items-center gap-3">
+        <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+        <span>Action successful.</span>
+    </div>
+
+    <script>
+        // --- Navigation ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            
+            // Update active state in nav (Desktop only)
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-red-500');
+            });
+            window.scrollTo(0,0);
+            
+            if(pageId === 'library') loadLibrary();
+        }
+
+        function notify(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- Engine Logic ---
+        function runCode() {
+            const code = document.getElementById('code-editor').value;
+            const preview = document.getElementById('engine-preview');
+            const blob = new Blob([code], { type: 'text/html' });
+            preview.src = URL.createObjectURL(blob);
+        }
+
+        function saveProject() {
+            const title = document.getElementById('game-title').value.trim() || "Untitled Project";
+            const code = document.getElementById('code-editor').value;
+            
+            if(!code) return notify("Write some code first, nerd.");
+
+            const projects = JSON.parse(localStorage.getItem('epsilon_projects') || '[]');
+            projects.push({
+                id: Date.now(),
+                title: title,
+                code: code,
+                date: new Date().toLocaleDateString()
+            });
+            
+            localStorage.setItem('epsilon_projects', JSON.stringify(projects));
+            notify(`"${title}" saved to library!`);
+        }
+
+        function loadLibrary() {
+            const list = document.getElementById('library-list');
+            const projects = JSON.parse(localStorage.getItem('epsilon_projects') || '[]');
+            
+            if(projects.length === 0) {
+                list.innerHTML = `<div class="col-span-full text-zinc-600 italic">No games created yet. Stop being lazy and code.</div>`;
+                return;
+            }
+
+            list.innerHTML = projects.map(p => `
+                <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-lg flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg text-red-500">${p.title}</h3>
+                        <p class="text-[10px] text-zinc-600 uppercase tracking-tighter mb-4">${p.date}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="playProject(${p.id})" class="flex-grow bg-white text-black text-xs font-black py-2 rounded hover:bg-zinc-100 transition flex items-center justify-center gap-1">
+                            <i data-lucide="play" class="w-3 h-3"></i> PLAY
+                        </button>
+                        <button onclick="deleteProject(${p.id})" class="bg-zinc-800 text-red-500 px-3 py-2 rounded hover:bg-red-600 hover:text-white transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteProject(id) {
+            let projects = JSON.parse(localStorage.getItem('epsilon_projects') || '[]');
+            projects = projects.filter(p => p.id !== id);
+            localStorage.setItem('epsilon_projects', JSON.stringify(projects));
+            loadLibrary();
+            notify("Yeeted the project into the void.");
+        }
+
+        function playProject(id) {
+            const projects = JSON.parse(localStorage.getItem('epsilon_projects') || '[]');
+            const project = projects.find(p => p.id === id);
+            if(project) {
+                playCode(project.code, project.title);
+            }
+        }
+
+        function playCode(code, title) {
+            showPage('player');
+            document.getElementById('current-playing-title').innerText = title;
+            const viewport = document.getElementById('game-viewport');
+            const blob = new Blob([code], { type: 'text/html' });
+            viewport.src = URL.createObjectURL(blob);
+        }
+
+        function clearPreview() {
+            document.getElementById('engine-preview').src = 'about:blank';
+        }
+
+        // --- Built-in Games Data ---
+        const games = {
+            snake: {
+                title: "Neon Serpent",
+                code: `
+                <!DOCTYPE html><html><body style="background:#000;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;overflow:hidden;font-family:sans-serif;color:white;">
+                <canvas id="g" width="400" height="400" style="border:5px solid #f00"></canvas>
+                <div style="position:absolute;top:20px;left:20px;">Score: <span id="s">0</span></div>
+                <script>
+                const c=document.getElementById("g"),x=c.getContext("2d");let s=0,ps=20,t=0,l=20,ax=15,ay=15,xv=yv=0,tr=[],tl=5;
+                function game(){px+=xv;py+=yv;if(px<0)px=l-1;if(px>l-1)px=0;if(py<0)py=l-1;if(py>l-1)py=0;x.fillStyle="black";x.fillRect(0,0,c.width,c.height);
+                x.fillStyle="red";for(let i=0;i<tr.length;i++){x.fillRect(tr[i].x*ps,tr[i].y*ps,ps-2,ps-2);if(tr[i].x==px&&tr[i].y==py)tl=5;}
+                tr.push({x:px,y:py});while(tr.length>tl)tr.shift();if(ax==px&&ay==py){tl++;s+=10;document.getElementById("s").innerText=s;ax=Math.floor(Math.random()*l);ay=Math.floor(Math.random()*l);}
+                x.fillStyle="white";x.fillRect(ax*ps,ay*ps,ps-2,ps-2);}
+                let px=py=10;setInterval(game,1000/15);
+                window.onkeydown=e=>{switch(e.keyCode){case 37:xv=-1;yv=0;break;case 38:xv=0;yv=-1;break;case 39:xv=1;yv=0;break;case 40:xv=0;yv=1;break;}};
+                <\/script></body></html>`
+            },
+            clicker: {
+                title: "Epsilon Clicker",
+                code: `
+                <!DOCTYPE html><html><body style="background:radial-gradient(circle, #200, #000);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif;">
+                <h1 style="font-size:4rem;margin:0;" id="score">0</h1>
+                <p>EP-COINS</p>
+                <button id="btn" style="width:200px;height:200px;border-radius:50%;border:none;background:#f00;box-shadow:0 0 50px rgba(255,0,0,0.5);cursor:pointer;font-size:5rem;outline:none;">💀</button>
+                <script>
+                let s=0;document.getElementById('btn').onclick=()=>{s++;document.getElementById('score').innerText=s;document.getElementById('btn').style.transform='scale(0.95)';setTimeout(()=>document.getElementById('btn').style.transform='scale(1)',50);};
+                <\/script></body></html>`
+            }
+        };
+
+        function playInternal(key) {
+            const g = games[key];
+            playCode(g.code, g.title);
+        }
+
+        function toggleFullscreen() {
+            const viewport = document.getElementById('game-viewport');
+            if (viewport.requestFullscreen) viewport.requestFullscreen();
+            else if (viewport.webkitRequestFullscreen) viewport.webkitRequestFullscreen();
+        }
+
+        // Hide loading screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('fade-out');
+            }, 500);
+        });
+
+        // Init
+        showPage('discover');
+        
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Re-initialize icons when content changes
+        const originalShowPage = showPage;
+        showPage = function(pageId) {
+            originalShowPage(pageId);
+            setTimeout(() => lucide.createIcons(), 50);
+        };
+        
+        const originalLoadLibrary = loadLibrary;
+        loadLibrary = function() {
+            originalLoadLibrary();
+            setTimeout(() => lucide.createIcons(), 50);
+        };
+    </script>
+</body>
+</html>
