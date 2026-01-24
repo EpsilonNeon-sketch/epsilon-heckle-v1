@@ -6,6 +6,7 @@
     <title>Epsilon Heckle | Play & Create</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <link rel="icon" href="./epsilon-heckle-logo.png" size="any">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -76,6 +77,31 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        
+        /* Studio / Engine Styles */
+        .viewport-object {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            transition: outline 0.1s ease;
+        }
+        .viewport-object.selected {
+            outline: 3px solid white;
+            outline-offset: 2px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        .grid-bg {
+            background-size: 25px 25px;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+        }
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
         }
     </style>
 </head>
@@ -184,47 +210,70 @@
 
         <!-- ENGINE PAGE -->
         <section id="page-engine" class="page-content hidden">
-            <div class="flex flex-col lg:flex-row gap-6 h-[700px]">
-                <!-- Editor Side -->
-                <div class="lg:w-1/2 flex flex-col gap-4">
-                    <div class="flex justify-between items-center">
+            <div class="flex flex-col gap-4 h-[750px]">
+                <!-- Studio Toolbar -->
+                <div class="flex justify-between items-center bg-zinc-900/80 p-4 rounded-xl border border-zinc-800 backdrop-blur-md">
+                    <div class="flex items-center gap-4">
                         <div class="flex items-center gap-2">
-                            <i data-lucide="terminal" class="w-6 h-6 text-red-500"></i>
-                            <h2 class="text-2xl font-black italic">ENGINE<span class="gradient-text">.v1</span></h2>
+                            <i data-lucide="layout" class="w-6 h-6 text-red-500"></i>
+                            <h2 class="text-xl font-black italic">EPSILON <span class="gradient-text">STUDIO</span></h2>
                         </div>
+                        <div class="h-6 w-px bg-zinc-700"></div>
                         <div class="flex gap-2">
-                            <input id="game-title" type="text" placeholder="Game Name..." class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2 text-sm outline-none focus:border-red-600 transition">
-                            <button onclick="saveProject()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
-                                <i data-lucide="save" class="w-4 h-4"></i> SAVE
+                            <button onclick="add3DObject('box')" class="bg-zinc-800 hover:bg-zinc-700 p-2 rounded text-xs flex items-center gap-1 transition border border-zinc-700">
+                                <i data-lucide="box" class="w-4 h-4"></i> Add Cube
+                            </button>
+                            <button onclick="add3DObject('sphere')" class="bg-zinc-800 hover:bg-zinc-700 p-2 rounded text-xs flex items-center gap-1 transition border border-zinc-700">
+                                <i data-lucide="circle" class="w-4 h-4"></i> Add Sphere
+                            </button>
+                            <button onclick="add3DObject('torus')" class="bg-zinc-800 hover:bg-zinc-700 p-2 rounded text-xs flex items-center gap-1 transition border border-zinc-700">
+                                <i data-lucide="donut" class="w-4 h-4"></i> Add Torus
+                            </button>
+                            <button onclick="add3DObject('player')" class="bg-zinc-800 hover:bg-zinc-700 p-2 rounded text-xs flex items-center gap-1 transition border border-zinc-700 text-red-400">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i> Add Player
                             </button>
                         </div>
                     </div>
-                    <textarea id="code-editor" class="flex-grow bg-black border border-zinc-800 rounded p-4 font-mono text-sm text-green-400 outline-none focus:border-zinc-600 resize-none custom-scrollbar" placeholder="<!-- Write your HTML/CSS/JS here -->
-<style>
-  body { background: #000; color: #f00; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
-</style>
-<h1>Hello Epsilon!</h1>
-<script>
-  console.log('Game Running...');
-</script>"></textarea>
-                    <button onclick="runCode()" class="w-full bg-gradient-to-r from-zinc-100 to-white text-black hover:from-white hover:to-zinc-100 font-black py-3 rounded-lg tracking-widest uppercase flex items-center justify-center gap-2 transition shadow-lg hover:shadow-xl">
-                        <i data-lucide="rocket" class="w-5 h-5"></i> Launch Preview
-                    </button>
-                </div>
-
-                <!-- Preview Side -->
-                <div class="lg:w-1/2 flex flex-col gap-4">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="monitor" class="w-4 h-4 text-zinc-500"></i>
-                            <h2 class="text-zinc-500 uppercase text-xs font-bold tracking-widest">Live Runtime</h2>
-                        </div>
-                        <button onclick="clearPreview()" class="text-zinc-600 hover:text-red-500 text-xs flex items-center gap-1 transition">
-                            <i data-lucide="refresh-ccw" class="w-3 h-3"></i> Reset Canvas
+                    <div class="flex gap-3">
+                        <input id="game-title" type="text" placeholder="Project Name..." class="bg-black border border-zinc-700 rounded-lg px-4 py-2 text-sm outline-none focus:border-red-600 transition w-40">
+                        <button onclick="runVisualGame()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-green-900/20">
+                            <i data-lucide="play" class="w-4 h-4 text-white"></i> PLAY
+                        </button>
+                        <button onclick="saveVisualProject()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-red-900/20">
+                            <i data-lucide="save" class="w-4 h-4"></i> SAVE
                         </button>
                     </div>
-                    <div id="preview-container" class="flex-grow bg-white rounded-lg overflow-hidden border-4 border-zinc-900 relative">
-                        <iframe id="engine-preview" class="w-full h-full"></iframe>
+                </div>
+
+                <div class="flex flex-grow gap-4 overflow-hidden">
+                    <!-- Hierarchy -->
+                    <div class="w-64 bg-zinc-900/30 border border-zinc-800 rounded-xl p-4 flex flex-col gap-2">
+                        <h3 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <i data-lucide="layers" class="w-3 h-3"></i> Hierarchy
+                        </h3>
+                        <div id="hierarchy-list" class="flex flex-col gap-1 overflow-y-auto custom-scrollbar flex-grow">
+                            <!-- Objects list -->
+                        </div>
+                    </div>
+
+                    <!-- Viewport -->
+                    <div id="viewport-container" class="flex-grow bg-zinc-950 border border-zinc-800 rounded-xl relative overflow-hidden grid-bg flex items-center justify-center">
+                        <div id="editor-viewport" class="w-full h-full relative" onclick="selectObject(null)">
+                            <!-- Visual objects -->
+                        </div>
+                        <div class="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] text-zinc-500 border border-zinc-800">
+                            Viewport: 100% x 100%
+                        </div>
+                    </div>
+
+                    <!-- Inspector -->
+                    <div class="w-72 bg-zinc-900/30 border border-zinc-800 rounded-xl p-4 flex flex-col gap-4">
+                        <h3 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-3 h-3"></i> Inspector
+                        </h3>
+                        <div id="inspector-panel" class="flex flex-col gap-4 overflow-y-auto custom-scrollbar flex-grow">
+                            <div class="text-zinc-600 text-xs italic text-center mt-10">Select an object to edit</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -303,6 +352,7 @@
             window.scrollTo(0,0);
             
             if(pageId === 'library') loadLibrary();
+            if(pageId === 'engine') setTimeout(init3DStudio, 100);
         }
 
         function notify(msg) {
@@ -314,45 +364,392 @@
             }, 3000);
         }
 
-        // --- Engine Logic ---
-        function runCode() {
-            const code = document.getElementById('code-editor').value;
-            const preview = document.getElementById('engine-preview');
-            const blob = new Blob([code], { type: 'text/html' });
-            preview.src = URL.createObjectURL(blob);
+        // --- Epsilon 3D Studio Logic ---
+        let scene, camera, renderer;
+        let engineObjects = [];
+        let selectedId = null;
+        let is3DInitialized = false;
+
+        function init3DStudio() {
+            const container = document.getElementById('editor-viewport');
+            if (!container || is3DInitialized) return;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050505);
+
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(5, 5, 5);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
+            scene.add(gridHelper);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xffffff, 1);
+            pointLight.position.set(5, 5, 5);
+            scene.add(pointLight);
+
+            window.addEventListener('resize', () => {
+                if (!is3DInitialized) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+
+            animate();
+            is3DInitialized = true;
         }
 
-        function saveProject() {
-            const title = document.getElementById('game-title').value.trim() || "Untitled Project";
-            const code = document.getElementById('code-editor').value;
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        function add3DObject(type) {
+            if (!is3DInitialized) init3DStudio();
             
-            if(!code) return notify("Write some code first, nerd.");
+            const id = Date.now();
+            let geometry;
+            if (type === 'box') geometry = new THREE.BoxGeometry(1, 1, 1);
+            else if (type === 'sphere') geometry = new THREE.SphereGeometry(0.7, 32, 32);
+            else if (type === 'torus') geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+            else if (type === 'player') geometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+
+            const material = new THREE.MeshStandardMaterial({ color: type === 'player' ? 0x00ff00 : 0xff0000 });
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            const obj = {
+                id,
+                type,
+                name: type.charAt(0).toUpperCase() + type.slice(1) + "_" + engineObjects.length,
+                pos: { x: 0, y: type === 'player' ? 1 : 0.5, z: 0 },
+                rot: { x: 0, y: 0, z: 0 },
+                scale: { x: 1, y: 1, z: 1 },
+                color: type === 'player' ? '#00ff00' : '#ff0000',
+                speed: type === 'player' ? 0.1 : undefined,
+                jumpStrength: type === 'player' ? 0.2 : undefined,
+                viewMode: type === 'player' ? 'first' : undefined,
+                mesh: mesh
+            };
+
+            mesh.userData.id = id;
+            scene.add(mesh);
+            engineObjects.push(obj);
+            selectObject(id);
+            refreshHierarchy();
+        }
+
+        function selectObject(id) {
+            selectedId = id;
+            engineObjects.forEach(o => {
+                if (o.id === id) {
+                    o.mesh.material.emissive = new THREE.Color(0x444444);
+                } else {
+                    o.mesh.material.emissive = new THREE.Color(0x000000);
+                }
+            });
+            refreshHierarchy();
+            updateInspector();
+        }
+
+        function refreshHierarchy() {
+            const hierarchy = document.getElementById('hierarchy-list');
+            if(!hierarchy) return;
+
+            hierarchy.innerHTML = engineObjects.map(obj => `
+                <div 
+                    onclick="selectObject(${obj.id})"
+                    class="group flex items-center justify-between px-3 py-2 rounded cursor-pointer transition ${selectedId === obj.id ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'hover:bg-zinc-800 text-zinc-400'}"
+                >
+                    <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-tighter">
+                        <i data-lucide="${obj.type === 'box' ? 'box' : (obj.type === 'sphere' ? 'circle' : (obj.type === 'torus' ? 'donut' : 'user'))}" class="w-3 h-3"></i>
+                        ${obj.name}
+                    </div>
+                    <button onclick="delete3DObject(${obj.id}); event.stopPropagation();" class="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-500 transition">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function updateInspector() {
+            const panel = document.getElementById('inspector-panel');
+            const obj = engineObjects.find(o => o.id === selectedId);
+
+            if (!obj) {
+                panel.innerHTML = `<div class="text-zinc-600 text-xs italic text-center mt-10">Select an object to edit</div>`;
+                return;
+            }
+
+            panel.innerHTML = `
+                <div class="flex flex-col gap-4 animate-in fade-in duration-300">
+                    <div class="space-y-1">
+                        <label class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Name</label>
+                        <input type="text" value="${obj.name}" oninput="update3DProp('name', this.value)" class="w-full bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Position (X, Y, Z)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" step="0.1" value="${obj.pos.x}" oninput="update3DProp('pos.x', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                            <input type="number" step="0.1" value="${obj.pos.y}" oninput="update3DProp('pos.y', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                            <input type="number" step="0.1" value="${obj.pos.z}" oninput="update3DProp('pos.z', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Rotation (Deg)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" value="${obj.rot.x}" oninput="update3DProp('rot.x', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                            <input type="number" value="${obj.rot.y}" oninput="update3DProp('rot.y', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                            <input type="number" value="${obj.rot.z}" oninput="update3DProp('rot.z', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Scale</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" step="0.1" value="${obj.scale.x}" oninput="update3DProp('scale.x', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                            <input type="number" step="0.1" value="${obj.scale.y}" oninput="update3DProp('scale.y', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                            <input type="number" step="0.1" value="${obj.scale.z}" oninput="update3DProp('scale.z', parseFloat(this.value))" class="bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Color</label>
+                        <div class="flex gap-2">
+                            <input type="color" value="${obj.color}" oninput="update3DProp('color', this.value)" class="w-10 h-8 bg-black border border-zinc-800 rounded cursor-pointer p-1">
+                            <input type="text" value="${obj.color}" oninput="update3DProp('color', this.value)" class="flex-grow bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                        </div>
+                    </div>
+                    ${obj.type === 'player' ? `
+                    <div class="border-t border-zinc-800 pt-4 mt-2 space-y-4">
+                        <h4 class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Player Settings</h4>
+                        <div class="space-y-1">
+                            <label class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Speed</label>
+                            <input type="number" step="0.01" value="${obj.speed}" oninput="update3DProp('speed', parseFloat(this.value))" class="w-full bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Jump Strength</label>
+                            <input type="number" step="0.01" value="${obj.jumpStrength}" oninput="update3DProp('jumpStrength', parseFloat(this.value))" class="w-full bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">View Mode</label>
+                            <select onchange="update3DProp('viewMode', this.value)" class="w-full bg-black border border-zinc-800 rounded px-2 py-1 text-[11px] outline-none focus:border-red-500 transition">
+                                <option value="first" ${obj.viewMode === 'first' ? 'selected' : ''}>First Person</option>
+                                <option value="third" ${obj.viewMode === 'third' ? 'selected' : ''}>Third Person</option>
+                            </select>
+                        </div>
+                    </div>
+                    ` : ''}
+                    <button onclick="delete3DObject(${obj.id})" class="mt-4 w-full bg-red-950/30 border border-red-900/50 text-red-500 py-2 rounded text-[10px] font-bold hover:bg-red-600 hover:text-white transition flex items-center justify-center gap-2">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i> Delete Object
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function update3DProp(path, val) {
+            const obj = engineObjects.find(o => o.id === selectedId);
+            if (!obj) return;
+
+            if (path === 'name') obj.name = val;
+            else if (path === 'color') {
+                obj.color = val;
+                obj.mesh.material.color.set(val);
+            } else if (path === 'speed' || path === 'jumpStrength' || path === 'viewMode') {
+                obj[path] = val;
+            } else {
+                const parts = path.split('.');
+                if (parts[0] === 'pos') {
+                    obj.pos[parts[1]] = val;
+                    obj.mesh.position[parts[1]] = val;
+                } else if (parts[0] === 'rot') {
+                    obj.rot[parts[1]] = val;
+                    obj.mesh.rotation[parts[1]] = val * (Math.PI / 180);
+                } else if (parts[0] === 'scale') {
+                    obj.scale[parts[1]] = val;
+                    obj.mesh.scale[parts[1]] = val;
+                }
+            }
+            refreshHierarchy();
+        }
+
+        function delete3DObject(id) {
+            const idx = engineObjects.findIndex(o => o.id === id);
+            if (idx !== -1) {
+                scene.remove(engineObjects[idx].mesh);
+                engineObjects.splice(idx, 1);
+            }
+            if (selectedId === id) selectedId = null;
+            refreshHierarchy();
+            updateInspector();
+        }
+
+        function runVisualGame() {
+            const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"><\/script>
+                    <style>body { margin: 0; overflow: hidden; background: #000; }</style>
+                </head>
+                <body>
+                    <script>
+                        const scene = new THREE.Scene();
+                        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                        const renderer = new THREE.WebGLRenderer({ antialias: true });
+                        renderer.setSize(window.innerWidth, window.innerHeight);
+                        document.body.appendChild(renderer.domElement);
+
+                        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                        scene.add(ambientLight);
+                        const light = new THREE.PointLight(0xffffff, 1);
+                        light.position.set(5, 5, 5);
+                        scene.add(light);
+
+                        camera.position.set(5, 5, 5);
+                        camera.lookAt(0,0,0);
+
+                        const keys = {};
+                        window.addEventListener('keydown', e => keys[e.code] = true);
+                        window.addEventListener('keyup', e => keys[e.code] = false);
+
+                        let playerObj = null;
+
+                        ${engineObjects.map(obj => `
+                            {
+                                let geo;
+                                if("${obj.type}" === "box") geo = new THREE.BoxGeometry(1, 1, 1);
+                                else if("${obj.type}" === "sphere") geo = new THREE.SphereGeometry(0.7, 32, 32);
+                                else if("${obj.type}" === "torus") geo = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+                                else if("${obj.type}" === "player") geo = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+                                
+                                const mat = new THREE.MeshStandardMaterial({ color: "${obj.color}" });
+                                const mesh = new THREE.Mesh(geo, mat);
+                                mesh.position.set(${obj.pos.x}, ${obj.pos.y}, ${obj.pos.z});
+                                mesh.rotation.set(${obj.rot.x * (Math.PI / 180)}, ${obj.rot.y * (Math.PI / 180)}, ${obj.rot.z * (Math.PI / 180)});
+                                mesh.scale.set(${obj.scale.x}, ${obj.scale.y}, ${obj.scale.z});
+                                scene.add(mesh);
+                                
+                                if("${obj.type}" === "player") {
+                                    playerObj = {
+                                        mesh,
+                                        speed: ${obj.speed || 0.1},
+                                        jumpStrength: ${obj.jumpStrength || 0.2},
+                                        viewMode: "${obj.viewMode || 'first'}",
+                                        velocity: new THREE.Vector3()
+                                    };
+                                } else {
+                                    // Auto-rotate for style
+                                    function rotate() {
+                                        mesh.rotation.y += 0.01;
+                                        requestAnimationFrame(rotate);
+                                    }
+                                    rotate();
+                                }
+                            }
+                        `).join('')}
+
+                        function animate() {
+                            requestAnimationFrame(animate);
+
+                            if (playerObj) {
+                                // Movement
+                                if (keys['KeyW']) playerObj.mesh.translateZ(-playerObj.speed);
+                                if (keys['KeyS']) playerObj.mesh.translateZ(playerObj.speed);
+                                if (keys['KeyA']) playerObj.mesh.translateX(-playerObj.speed);
+                                if (keys['KeyD']) playerObj.mesh.translateX(playerObj.speed);
+                                
+                                if (playerObj.viewMode === 'first') {
+                                    camera.position.copy(playerObj.mesh.position);
+                                    camera.position.y += 0.5;
+                                    camera.rotation.copy(playerObj.mesh.rotation);
+                                } else {
+                                    const offset = new THREE.Vector3(0, 3, 5);
+                                    offset.applyQuaternion(playerObj.mesh.quaternion);
+                                    camera.position.copy(playerObj.mesh.position).add(offset);
+                                    camera.lookAt(playerObj.mesh.position);
+                                }
+                            }
+
+                            renderer.render(scene, camera);
+                        }
+                        animate();
+                        window.addEventListener('resize', () => {
+                            camera.aspect = window.innerWidth / window.innerHeight;
+                            camera.updateProjectionMatrix();
+                            renderer.setSize(window.innerWidth, window.innerHeight);
+                        });
+                    <\/script>
+                </body>
+                </html>
+            `;
+            playCode(html, document.getElementById('game-title').value || "Epsilon 3D Experience");
+        }
+
+        function saveVisualProject() {
+            const title = document.getElementById('game-title').value.trim() || "Untitled 3D Project";
+            if(engineObjects.length === 0) return notify("Add some 3D objects first.");
+
+            const serializableData = engineObjects.map(o => ({
+                type: o.type,
+                name: o.name,
+                pos: o.pos,
+                rot: o.rot,
+                scale: o.scale,
+                color: o.color,
+                speed: o.speed,
+                jumpStrength: o.jumpStrength,
+                viewMode: o.viewMode
+            }));
 
             const projects = JSON.parse(localStorage.getItem('epsilon_projects') || '[]');
             projects.push({
                 id: Date.now(),
                 title: title,
-                code: code,
+                type: '3d',
+                data: serializableData,
                 date: new Date().toLocaleDateString()
             });
             
             localStorage.setItem('epsilon_projects', JSON.stringify(projects));
-            notify(`"${title}" saved to library!`);
+            notify(`"${title}" saved as 3D Project!`);
         }
+
+        function clearPreview() {
+            engineObjects.forEach(o => scene.remove(o.mesh));
+            engineObjects = [];
+            selectedId = null;
+            refreshHierarchy();
+            updateInspector();
+        }
+
+        // --- Built-in Games Data ---
 
         function loadLibrary() {
             const list = document.getElementById('library-list');
             const projects = JSON.parse(localStorage.getItem('epsilon_projects') || '[]');
             
             if(projects.length === 0) {
-                list.innerHTML = `<div class="col-span-full text-zinc-600 italic">No games created yet. Stop being lazy and code.</div>`;
+                list.innerHTML = `<div class="col-span-full text-zinc-600 italic">No games created yet. Stop being lazy and create.</div>`;
                 return;
             }
 
             list.innerHTML = projects.map(p => `
                 <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-lg flex flex-col justify-between">
                     <div>
-                        <h3 class="font-bold text-lg text-red-500">${p.title}</h3>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-red-500">${p.title}</h3>
+                            <span class="text-[8px] bg-red-600 px-2 py-0.5 rounded text-white font-black uppercase tracking-widest">
+                                ${p.type === '3d' ? '3D Studio' : (p.type === 'visual' ? 'Studio' : 'Code')}
+                            </span>
+                        </div>
                         <p class="text-[10px] text-zinc-600 uppercase tracking-tighter mb-4">${p.date}</p>
                     </div>
                     <div class="flex gap-2">
@@ -372,14 +769,33 @@
             projects = projects.filter(p => p.id !== id);
             localStorage.setItem('epsilon_projects', JSON.stringify(projects));
             loadLibrary();
-            notify("Yeeted the project into the void.");
+            notify("Project deleted successfully.");
         }
 
         function playProject(id) {
             const projects = JSON.parse(localStorage.getItem('epsilon_projects') || '[]');
             const project = projects.find(p => p.id === id);
             if(project) {
-                playCode(project.code, project.title);
+                if(project.type === '3d') {
+                    // Load 3D data back into engine
+                    if(!is3DInitialized) init3DStudio();
+                    clearPreview();
+                    project.data.forEach(d => {
+                        add3DObject(d.type);
+                        const obj = engineObjects[engineObjects.length - 1];
+                        obj.name = d.name;
+                        update3DProp('pos.x', d.pos.x); update3DProp('pos.y', d.pos.y); update3DProp('pos.z', d.pos.z);
+                        update3DProp('rot.x', d.rot.x); update3DProp('rot.y', d.rot.y); update3DProp('rot.z', d.rot.z);
+                        update3DProp('scale.x', d.scale.x); update3DProp('scale.y', d.scale.y); update3DProp('scale.z', d.scale.z);
+                        update3DProp('color', d.color);
+                    });
+                    runVisualGame();
+                } else if(project.type === 'visual') {
+                    engineObjects = project.data;
+                    runVisualGame();
+                } else {
+                    playCode(project.code, project.title);
+                }
             }
         }
 
@@ -389,10 +805,6 @@
             const viewport = document.getElementById('game-viewport');
             const blob = new Blob([code], { type: 'text/html' });
             viewport.src = URL.createObjectURL(blob);
-        }
-
-        function clearPreview() {
-            document.getElementById('engine-preview').src = 'about:blank';
         }
 
         // --- Built-in Games Data ---
