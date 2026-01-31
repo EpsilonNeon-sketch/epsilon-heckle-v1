@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <link rel="icon" href="./epsilon-heckle-logo.png" size="any">
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -440,7 +441,7 @@
             </div>
             <h1 class="heading-font text-lg md:text-2xl font-black tracking-tighter">EPSILON <span class="gradient-text">HECKLE</span></h1>
         </div>
-        <div><h2>-BY warren Adrian</h2></div>
+        
         <!-- Desktop Navigation -->
         <div class="hidden md:flex gap-4 lg:gap-8 text-sm font-semibold uppercase tracking-widest">
             <button onclick="showPage('discover')" class="nav-btn hover:text-red-500 transition flex items-center gap-2">
@@ -2528,7 +2529,13 @@ showPage = function(pageId) {
         }, 50); // Small delay to let the div become visible first
     }
 };
+if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Epsilon Heckle SW is live, bestie! 🚀', reg))
+                .catch(err => console.log('SW failed to spawn. 💀', err));
+        });
+    }
     </script>
 </body>
 </html>
-
