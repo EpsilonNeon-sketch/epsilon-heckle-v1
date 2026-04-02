@@ -2537,50 +2537,72 @@ if ('serviceWorker' in navigator) {
                 .catch(err => console.log('SW failed to spawn. 💀', err));
         });
     }
-       // CHANGE THIS FOR EVERY SITE (e.g., 'academics', 'sports', 'editz')
-const CURRENT_EPSILON_PROJECT = 'heckle'; 
+      /** * EPSILON PROJECT CONFIG 
+ * Change this string for every site (e.g., 'sports', 'heckle', 'editz')
+ */
+const SITE_NAME = 'heckle'; 
 
 (async function() {
     const { createClient } = supabase;
     const client = createClient('https://gfsqzkyviivhvyqadpeg.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmc3F6a3l2aWl2aHZ5cWFkcGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDI0NDQsImV4cCI6MjA4NjAxODQ0NH0.MwC6dMZKFZMyklCJKqr4DPek8dxR-EswBZSd1L_AkMA');
 
-    const blockUI = `
-        <div id="epsilon-blocker" style="position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#050505;color:#fff;font-family:sans-serif;z-index:999999;text-align:center;">
-            <div style="padding:40px;border:2px solid #7e22ce;background:#000;border-radius:15px;box-shadow:0 0 30px #7e22ce;">
-                <h1 style="color:#a855f7;font-size:40px;margin-bottom:10px;">EPSILON SYSTEM</h1>
-                <p style="font-size:18px;color:#d8b4fe;">Project [${CURRENT_EPSILON_PROJECT.toUpperCase()}] is Restricted</p>
-                <p style="font-size:12px;color:#6b21a8;margin-top:20px;">Contact Warren or an Admin for access.</p>
-            </div>
+    // 1. Setup the UI (Hidden by default)
+    const blockOverlay = document.createElement('div');
+    blockOverlay.id = 'epsilon-security-overlay';
+    blockOverlay.style = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+        background: #000; color: #fff; z-index: 2147483647; 
+        display: none; align-items: center; justify-content: center;
+        font-family: 'Inter', sans-serif; text-align: center;
+    `;
+    
+    const displayTitle = SITE_NAME.charAt(0).toUpperCase() + SITE_NAME.slice(1);
+    
+    blockOverlay.innerHTML = `
+        <div style="padding:40px; border:1px solid #7e22ce; border-radius:24px; background:#050505; box-shadow: 0 0 60px rgba(126,34,206,0.4);">
+            <div style="font-size:80px; margin-bottom:20px;">🚫</div>
+            <h1 style="font-size:42px; font-weight:800; margin:0; color:#a855f7; letter-spacing:-1px;">SERVER BLOCKED</h1>
+            <p style="font-size:18px; color:#c084fc; margin:15px 0;">Epsilon ${displayTitle} is currently offline</p>
+            <div style="height:2px; background:linear-gradient(90deg, transparent, #7e22ce, transparent); margin:20px 0;"></div>
+            <p style="font-size:12px; color:#9333ea; text-transform:uppercase; letter-spacing:3px; font-weight:bold;">Epsilon Admin Security Protocol</p>
         </div>`;
+    
+    document.documentElement.appendChild(blockOverlay);
 
-    async function checkBlockStatus() {
-        // We only select the row where site_name is EXACTLY this project
-        const { data, error } = await client
-            .from('blocked_sites')
-            .select('site_name')
-            .eq('site_name', CURRENT_EPSILON_PROJECT)
-            .maybeSingle();
+    // 2. The Checking Function
+    async function checkStatus() {
+        try {
+            const { data, error } = await client
+                .from('blocked_sites')
+                .select('site_name')
+                .eq('site_name', SITE_NAME)
+                .maybeSingle();
 
-        // If there's an error or no data found, we assume the site is NOT blocked (Safety First)
-        if (error || !data) {
-            const overlay = document.getElementById('epsilon-blocker');
-            if (overlay) location.reload(); // Unblock and restore site
-            return;
-        }
+            const overlay = document.getElementById('epsilon-security-overlay');
 
-        // If data exists, it means THIS specific site name is in the 'blocked_sites' table
-        if (data.site_name === CURRENT_EPSILON_PROJECT) {
-            if (!document.getElementById('epsilon-blocker')) {
-                document.body.innerHTML = blockUI;
+            if (data && !error) {
+                // If the row exists, show the block screen
+                if (overlay.style.display !== 'flex') {
+                    overlay.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            } else {
+                // If row is deleted/missing, hide the block screen
+                if (overlay.style.display === 'flex') {
+                    overlay.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    // Optional: location.reload(); // Refresh to make sure all scripts restart
+                }
             }
+        } catch (err) {
+            console.error("Epsilon Security Sync Error:", err);
         }
     }
 
-    // Run immediately
-    checkBlockStatus();
+    // 3. Execution (Instant check + 5s loop)
+    checkStatus();
+    setInterval(checkStatus, 5000);
 
-    // Check every 5 seconds (as you requested)
-    setInterval(checkBlockStatus, 5000);
 })();
     </script>
 </body>
