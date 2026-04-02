@@ -2559,13 +2559,37 @@ const SITE_NAME = 'heckle';
     const displayTitle = SITE_NAME.charAt(0).toUpperCase() + SITE_NAME.slice(1);
     
     blockOverlay.innerHTML = `
-        <div style="padding:40px; border:1px solid #7e22ce; border-radius:24px; background:#050505; box-shadow: 0 0 60px rgba(126,34,206,0.4);">
-            <div style="font-size:80px; margin-bottom:20px;">🚫</div>
-            <h1 style="font-size:42px; font-weight:800; margin:0; color:#a855f7; letter-spacing:-1px;">SERVER BLOCKED</h1>
-            <p style="font-size:18px; color:#c084fc; margin:15px 0;">Epsilon ${displayTitle} is currently offline</p>
-            <div style="height:2px; background:linear-gradient(90deg, transparent, #7e22ce, transparent); margin:20px 0;"></div>
-            <p style="font-size:12px; color:#9333ea; text-transform:uppercase; letter-spacing:3px; font-weight:bold;">Epsilon Admin Security Protocol</p>
-        </div>`;
+    <div
+    style="height: 130%; width: 100%; background: #000; color: #f3e8ff; font-family: Inter, sans-serif; text-align: center; padding: 20px;">
+    <div style="max-width: 500px;">
+        <div style="font-size: 80px; margin-bottom: 20px;">
+            <i data-lucide="ban" style="color: #f3e8ff; font-size:90px;"></i>
+        </div>
+        <h1 style="font-size: 48px; font-weight: 800; margin-bottom: 16px; color: #a855f7;">Oops! Server Blocked</h1>
+        <p style="font-size: 20px; color: #c084fc; margin-bottom: 12px;">Epsilon ${SITE_NAME.charAt(0).toUpperCase() +
+            SITE_NAME.slice(1)} is currently unavailable</p>
+            <p>Error: ${errorType}</p>
+        <p style="font-size: 14px; color: #9333ea;">This site has been temporarily blocked by administrators</p>
+        <h1>Understand</h1>
+        <i data-lucide="laptop" style="color: #f3e8ff; font-size:44px;"></i>
+        <p>your device is not the problem</p>
+        <p>----</p>
+        <i data-lucide="wifi" style="color: #f3e8ff; font-size:44px;"></i>
+        <p>Your internet connection is not the issue</p>
+        <p>-----</p>
+        <i data-lucide="server" style="color: #f3e8ff; font-size:44px;"></i>
+        <p>the server is currently blocked</p>
+        <h1>What can I do?</h1>
+        <a href="https://epsilon-site-v1.vercel.app/"
+            style="color: #a855f7; text-decoration: none; font-weight: 600;">Visit the main site</a>
+        <p>or text any epsilon admin in the epsilon site names and epsilon accounts provided below:</p>
+        <p>Warren: @epsilononer</p>
+        <p>Ethan: @Etyan</p>
+        <p>Philip: @El-rosco</p>
+        <p>Richard: @rich_epsilon</p>
+    </div>
+</div>
+        `;
     
     document.documentElement.appendChild(blockOverlay);
 
